@@ -1,8 +1,11 @@
-name: Hourly Wellness Check
+name: Wellness Capacity Check
 
 on:
   schedule:
-    - cron: '5 * * * *'
+    # Every 30 min from 14:05 to 18:35 UTC (15:05 to 19:35 CET)
+    - cron: '5,35 14-18 * * *'
+    # Final run at 19:05 UTC (20:05 CET)
+    - cron: '5 19 * * *'
   workflow_dispatch:
 
 permissions:
