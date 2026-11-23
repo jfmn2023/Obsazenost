@@ -23,4 +23,4 @@ jobs:
       #   run: pip install requests
 
       - name: Run wellness script
-        run: python check_wellness.py
+        run: python skript.py
