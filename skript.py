@@ -38,51 +38,45 @@ def fetch_zone_data() -> dict | list | int | str:
         return response.json()
 
 
-def extract_capacity(payload) -> str:
-    """Finds a capacity value in the JSON response; falls back to stringified payload."""
-    preferred_keys = ("freeCapacity", "volnaKapacita", "capacity", "free", "count", "value")
-
+def extract_number_key(payload) -> str:
+    """Extracts the value associated with the 'number' key inside the JSON payload."""
     def walk(obj):
         if isinstance(obj, dict):
-            for key in preferred_keys:
-                if key in obj and obj[key] is not None:
-                    val = walk(obj[key])
-                    if val is not None:
-                        return val
+            if "number" in obj and obj["number"] is not None:
+                val = obj["number"]
+                if isinstance(val, (int, float)):
+                    return str(val)
+                match = re.search(r"-?\d+", str(val))
+                if match:
+                    return match.group(0)
             for v in obj.values():
-                val = walk(v)
-                if val is not None:
-                    return val
+                found = walk(v)
+                if found is not None:
+                    return found
         elif isinstance(obj, list):
             for item in obj:
-                val = walk(item)
-                if val is not None:
-                    return val
-        elif isinstance(obj, (int, float)):
-            return str(obj)
-        elif isinstance(obj, str):
-            match = re.search(r"-?\d+", obj)
-            if match:
-                return match.group(0)
+                found = walk(item)
+                if found is not None:
+                    return found
         return None
 
     found = walk(payload)
-    return found if found is not None else json.dumps(payload, ensure_ascii=False)
+    return found if found is not None else ""
 
 
-def append_to_csv(capacity: str, raw_payload) -> None:
+def append_to_csv(capacity_left: str, raw_payload) -> None:
     file_exists = os.path.exists(CSV_FILE)
     timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
     with open(CSV_FILE, mode="a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(["timestamp_utc", "free_capacity", "raw_json"])
-        writer.writerow([timestamp, capacity, json.dumps(raw_payload, ensure_ascii=False)])
+            writer.writerow(["timestamp_utc", "capacity_left", "raw_json"])
+        writer.writerow([timestamp, capacity_left, json.dumps(raw_payload, ensure_ascii=False)])
 
 
 if __name__ == "__main__":
     data = fetch_zone_data()
-    capacity = extract_capacity(data)
-    append_to_csv(capacity, data)
-    print(f"Saved capacity={capacity} to {CSV_FILE}")
+    capacity_left = extract_number_key(data)
+    append_to_csv(capacity_left, data)
+    print(f"Saved capacity_left={capacity_left} to {CSV_FILE}")
