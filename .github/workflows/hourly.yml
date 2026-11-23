@@ -19,8 +19,8 @@ jobs:
           python-version: '3.12'
 
       # Optional: uncomment if using 'requests' instead of 'urllib'
-      # - name: Install dependencies
-      #   run: pip install requests
+      - name: Install dependencies
+        run: pip install requests
 
       - name: Run wellness script
         run: python skript.py
