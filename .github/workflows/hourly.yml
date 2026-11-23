@@ -1,0 +1,26 @@
+name: Hourly Wellness Check
+
+on:
+  schedule:
+    # Runs at minute 5 of every hour (UTC)
+    - cron: '5 * * * *'
+  workflow_dispatch: # Allows manual testing via a button in GitHub UI
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Optional: uncomment if using 'requests' instead of 'urllib'
+      # - name: Install dependencies
+      #   run: pip install requests
+
+      - name: Run wellness script
+        run: python check_wellness.py
