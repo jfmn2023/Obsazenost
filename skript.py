@@ -36,7 +36,7 @@ def fetch_zone_data() -> dict | list | int | str:
         response = session.get(API_URL, timeout=15)
         response.raise_for_status()
         return response.json()
-
+# note
 
 def extract_number_key(payload) -> str:
     """Extracts the value associated with the 'number' key inside the JSON payload."""
